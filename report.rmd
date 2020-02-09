@@ -1,0 +1,78 @@
+```{r echo = FALSE}
+knitr::read_chunk("./analyse.r")
+knitr::opts_chunk$set(message = FALSE)
+```
+
+# Death row
+Analysis of death row inmates' final statements before execution. Data scraped
+from Texas Department of Criminal Justice website.
+
+## General statistics
+
+### Executions per year
+
+```{r executions-per-year, echo = FALSE}
+```
+
+### Race distribution by year
+
+```{r race-distribution-by-year, echo = FALSE}
+```
+
+### Average age at execution by year
+
+```{r average-age-by-year, echo = FALSE}
+```
+
+### Average age at execution by race
+
+```{r average-age-by-race, echo = FALSE}
+```
+
+## Word clouds
+
+### Most frequent words
+
+```{r frequent-words, echo = FALSE}
+```
+
+### Most frequent phrases (trigrams)
+
+```{r frequent-phrases, echo = FALSE, warning = FALSE}
+```
+
+## Sentiment analysis
+
+```{r echo = FALSE}
+sentiments <- data %>%
+  mutate(sentiment = sentiment_by(statement)$ave_sentiment) %>%
+  select(c("statement", "sentiment")) %>%
+  filter(!str_detect(statement, "offender declined|not found")) %>%
+  filter(nchar(statement) > 100) %>%
+  arrange(sentiment)
+```
+
+#### Example of statements with negative sentiment
+
+```{r echo = FALSE, results = "asis"}
+pprint <- function(x) {
+  paste("* ", x[1], "\n", "*Score: ", x[2], "*\n", sep = "")
+}
+
+writeLines(apply(head(sentiments, 10), 1, pprint))
+```
+
+#### Example of statements with positive sentiment
+
+```{r echo = FALSE, results = "asis"}
+writeLines(apply(tail(sentiments, 10), 1, pprint))
+```
+
+### Sentiment by age
+
+```{r sentiment-by-age, echo = FALSE}
+```
+
+### Sentiment by race
+```{r sentiment-by-race, echo = FALSE}
+```

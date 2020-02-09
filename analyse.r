@@ -8,7 +8,7 @@ library(wordcloud)
 
 data <- readRDS("./deathrow.rds")
 
-# Executions per year
+## ---- executions-per-year
 executions_per_year <- data %>%
   group_by(year = format(date, "%Y")) %>%
   count() %>%
@@ -19,7 +19,7 @@ ggplot(executions_per_year, aes(x = year, y = n)) +
   geom_bar(stat = "identity") +
   labs(title = "Executions per year", x = "Year", y = "Executions")
 
-# Average age by year
+## ---- average-age-by-year
 year_avg <- data %>%
   group_by(year = format(date, "%Y")) %>%
   summarise(mean_age = mean(age)) %>%
@@ -29,14 +29,14 @@ ggplot(year_avg, aes(x = year, y = mean_age)) +
   geom_bar(stat = "identity") +
   labs(title = "Average age at execution by year", x = "Year", y = "Age")
 
-# Average age by race
+## ---- average-age-by-race
 age_by_race <- aggregate(age ~ race, data, mean)
 
 ggplot(age_by_race, aes(x = race, y = age)) +
   geom_bar(stat = "identity", width = 0.5) +
   labs(title = "Average age at execution by race", x = "Year", y = "Race")
 
-# Race distribution by year
+## ---- race-distribution-by-year
 race_by_year <- data %>%
   group_by(year = format(date, "%Y")) %>%
   count(race) %>%
@@ -56,7 +56,7 @@ ggplot(race_by_year_long, aes(x = year, y = count, fill = race)) +
   theme_bw() +
   scale_fill_grey()
 
-# Most frequest words
+## ---- frequent-words
 words <- data %>%
   select("statement") %>%
   unnest_tokens(word, statement) %>%
@@ -66,22 +66,16 @@ words <- data %>%
 
 wordcloud(words$word, words$n, random.order = FALSE, scale = c(10, 1))
 
-# Most frequent phrases
+## ---- frequent-phrases
 trigrams <- data %>%
   select("statement") %>%
   unnest_tokens(trigram, statement, token = "ngrams", n = 3) %>%
   count(trigram, sort = TRUE) %>%
-  slice(1:100)
+  slice(1:50)
 
 wordcloud(trigrams$trigram, trigrams$n, random.order = FALSE, scale = c(10, 1))
 
-# Sentiment analysis
-sentiments <- data %>%
-  mutate(sentiment = sentiment_by(statement)$ave_sentiment) %>%
-  arrange(sentiment) %>%
-  select(c("statement", "sentiment"))
-
-# Sentiment by age
+## ---- sentiment-by-age
 sentiment_by_age <- data %>%
   mutate(cuts = cut(age, seq(20, 80, 10))) %>%
   mutate(sentiment = sentiment_by(statement)$ave_sentiment) %>%
@@ -92,7 +86,7 @@ ggplot(sentiment_by_age, aes(x = cuts, y = sentiment)) +
   geom_boxplot() +
   labs(title = "Sentiment by age", x = "Age group", y = "Sentiment")
 
-# Sentiment by race
+## ---- sentiment-by-race
 sentiment_by_race <- data %>%
   mutate(sentiment = sentiment_by(statement)$ave_sentiment) %>%
   group_by(race) %>%
